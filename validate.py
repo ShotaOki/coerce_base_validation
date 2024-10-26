@@ -48,7 +48,7 @@ def validate_latitude(
     error: dict,
     input: dict,
     key: str,
-    coerced: int = None,
+    coerced: float = None,
 ):
     if coerced > 90:
         error[key] = f"{key} is greater than {90}"
