@@ -6,7 +6,7 @@ import re
 
 
 @dataclass
-class CoerceDefine:
+class TypeCheck:
     input_type: Type
     coerce: Type
     regex: Optional[str] = None
@@ -28,7 +28,7 @@ def is_equal_type(variable_type: Type, define_type: Type | UnionType) -> Type | 
     return None
 
 
-def input_coerce(defines: List[CoerceDefine]):
+def input_coerce(defines: List[TypeCheck]):
 
     def _input_coerce(func):
 

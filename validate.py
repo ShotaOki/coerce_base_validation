@@ -1,4 +1,4 @@
-from input_coerce import input_coerce, CoerceDefine
+from input_coerce import input_coerce, TypeCheck
 from datetime import datetime, date, time
 from math import isfinite
 
@@ -18,9 +18,9 @@ number_type = int | float
 @input_coerce(
     [
         # クエリ文字列: 型はString、バリデータ関数の中ではintとして扱う
-        CoerceDefine(input_type=str, coerce=int, regex=REGEX_SIGNED_INT),
+        TypeCheck(input_type=str, coerce=int, regex=REGEX_SIGNED_INT),
         # JSONボディ: 型はNumber、バリデータ関数の中ではintとして扱う
-        CoerceDefine(input_type=number_type, coerce=int),
+        TypeCheck(input_type=number_type, coerce=int),
     ]
 )
 def validate_int(
@@ -44,7 +44,7 @@ def validate_int(
     [
         # クエリ文字列: 型はString、バリデータ関数の中ではStringとして扱う
         # 空文字はpre_validateで許容しない
-        CoerceDefine(
+        TypeCheck(
             input_type=str,
             coerce=str,
             regex=REGEX_ALNUM,
@@ -64,11 +64,11 @@ def validate_alnum_str(
 @input_coerce(
     [
         # クエリ文字列: 型はString、バリデータ関数の中では有限のfloatとして扱う
-        CoerceDefine(
+        TypeCheck(
             input_type=str, coerce=float, regex=REGEX_FLOAT, pre_validate=isfinite
         ),
         # JSONボディ: 型はNumber、バリデータ関数の中では有限のfloatとして扱う
-        CoerceDefine(input_type=number_type, coerce=float, pre_validate=isfinite),
+        TypeCheck(input_type=number_type, coerce=float, pre_validate=isfinite),
     ]
 )
 def validate_latitude(
@@ -90,7 +90,7 @@ def validate_latitude(
     [
         # クエリ、JSON共通
         # 型はString、バリデータ関数の中ではdatetimeとして扱う
-        CoerceDefine(
+        TypeCheck(
             input_type=str,
             coerce=datetime,
             coerce_function=datetime.fromisoformat,
@@ -114,7 +114,7 @@ def validate_datetime(
     [
         # クエリ、JSON共通
         # 型はString、バリデータ関数の中ではdateとして扱う
-        CoerceDefine(
+        TypeCheck(
             input_type=str,
             coerce=date,
             coerce_function=date.fromisoformat,
@@ -138,7 +138,7 @@ def validate_date(
     [
         # クエリ、JSON共通
         # 型はString、バリデータ関数の中ではtimeとして扱う
-        CoerceDefine(
+        TypeCheck(
             input_type=str,
             coerce=time,
             coerce_function=time.fromisoformat,
