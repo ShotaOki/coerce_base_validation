@@ -1,9 +1,11 @@
 from input_coerce import input_coerce, CoerceDefine
 from datetime import datetime, date, time
+from math import isfinite
 
 # 正規表現の定義
 REGEX_UNSIGNED_INT = r"^[0-9]+$"
 REGEX_SIGNED_INT = r"^[-+]?[0-9]+$"
+REGEX_ALNUM = r"^[0-9a-zA-Z]*$"
 REGEX_FLOAT = r"^[-+]?[0-9]*\.?[0-9]+$"
 REGEX_DATETIME = r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}$"
 REGEX_DATE = r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
@@ -31,17 +33,42 @@ def validate_int(
 ):
     if min is not None and coerced < min:
         error[key] = f"{key} is less than {min}"
+        return False
     if max is not None and coerced > max:
         error[key] = f"{key} is greater than {max}"
+        return False
     return True
 
 
 @input_coerce(
     [
-        # クエリ文字列: 型はString、バリデータ関数の中ではfloatとして扱う
-        CoerceDefine(input_type=str, coerce=float, regex=REGEX_FLOAT),
-        # JSONボディ: 型はNumber、バリデータ関数の中ではfloatとして扱う
-        CoerceDefine(input_type=number_type, coerce=float),
+        # クエリ文字列: 型はString、バリデータ関数の中ではStringとして扱う
+        # 空文字はpre_validateで許容しない
+        CoerceDefine(
+            input_type=str,
+            coerce=str,
+            regex=REGEX_ALNUM,
+            pre_validate=lambda x: len(x) >= 1,
+        ),
+    ]
+)
+def validate_alnum_str(
+    error: dict,
+    input: dict,
+    key: str,
+    coerced: str = None,
+):
+    return True
+
+
+@input_coerce(
+    [
+        # クエリ文字列: 型はString、バリデータ関数の中では有限のfloatとして扱う
+        CoerceDefine(
+            input_type=str, coerce=float, regex=REGEX_FLOAT, pre_validate=isfinite
+        ),
+        # JSONボディ: 型はNumber、バリデータ関数の中では有限のfloatとして扱う
+        CoerceDefine(input_type=number_type, coerce=float, pre_validate=isfinite),
     ]
 )
 def validate_latitude(
@@ -52,8 +79,10 @@ def validate_latitude(
 ):
     if coerced > 90:
         error[key] = f"{key} is greater than {90}"
+        return False
     if coerced < -90:
         error[key] = f"{key} is less than {90}"
+        return False
     return True
 
 
@@ -77,6 +106,7 @@ def validate_datetime(
 ):
     if coerced.year < 2021:
         error[key] = f"{key} is less than 2021"
+        return False
     return True
 
 
@@ -100,6 +130,7 @@ def validate_date(
 ):
     if coerced.year < 2021:
         error[key] = f"{key} is less than 2021"
+        return False
     return True
 
 
@@ -123,4 +154,5 @@ def validate_time(
 ):
     if coerced.hour < 6:
         error[key] = f"{key} is less than 6"
+        return False
     return True

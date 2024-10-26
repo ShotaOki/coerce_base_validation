@@ -11,6 +11,7 @@ class CoerceDefine:
     coerce: Type
     regex: Optional[str] = None
     coerce_function: Optional[Callable] = None
+    pre_validate: Optional[Callable] = None
 
 
 def is_equal_type(variable_type: Type, define_type: Type | UnionType) -> Type | None:
@@ -89,6 +90,16 @@ def input_coerce(defines: List[CoerceDefine]):
                     else:
                         # 変換後の型と引数の型が同じなら、そのままcoerce後の値として扱う
                         coerced = variable
+
+                    # 事前判定があれば実行する
+                    # 事前判定の例:
+                    #     isfinite -> floatが有限かどうかを判定する
+                    #     not_is_empty -> 空文字、空配列かどうかを判定する
+                    if define.pre_validate is not None:
+                        # 事前判定がFalseを返したのなら、それを実行する
+                        if not define.pre_validate(coerced):
+                            errors[key] = f"Pre-Validate Error: {key}"
+                            return False
 
                     kwargs["coerced"] = coerced
 
