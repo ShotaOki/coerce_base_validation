@@ -12,7 +12,7 @@ class RequestType(Enum):
     PATH = "p"
     QUERY_AND_PATH = "q|p"
     ALL = "q|b|p"
-    UNKNOWN = -1
+    UNKNOWN = ""
 
 
 @dataclass
